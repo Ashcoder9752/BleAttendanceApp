@@ -6,7 +6,6 @@ import {
     TextInput,
     TouchableOpacity,
     Alert,
-    StatusBar,
     Keyboard,
     TouchableWithoutFeedback,
 } from 'react-native';
@@ -78,7 +77,6 @@ export default function LoginScreen(): React.JSX.Element {
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View style={styles.container}>
-                <StatusBar barStyle="light-content"/>
                 <Text style={styles.title}>Welcome Back</Text>
                 <Text style={styles.subtitle}>Login to continue</Text>
 

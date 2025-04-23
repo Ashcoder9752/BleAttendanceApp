@@ -4,7 +4,6 @@ import {
     StyleSheet,
     Animated,
     Easing,
-    StatusBar,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
@@ -42,7 +41,6 @@ export default function SplashScreen(): React.JSX.Element {
 
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="light-content"/>
             <Animated.Image
                 source={require('../../assets/splash-icon.png')}
                 style={[styles.logo, {opacity: fadeAnim}]}
