@@ -1,18 +1,20 @@
 import React, {useEffect} from 'react';
 import {
     View,
-    StatusBar,
     StyleSheet,
     Animated,
     Easing,
+    StatusBar,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../AppNavigator';
+import {Colors, Spacing, Typography} from "../styles";
 
 type SplashScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Splash'>;
 
-const SplashScreen: React.FC = () => {
+export default function SplashScreen(): React.JSX.Element {
     const navigation = useNavigation<SplashScreenNavigationProp>();
     const fadeAnim = new Animated.Value(0);
 
@@ -24,19 +26,25 @@ const SplashScreen: React.FC = () => {
             useNativeDriver: true,
         }).start();
 
-        const timer = setTimeout(() => {
-            navigation.replace('Home');
-        }, 2000);
+        const checkLoginStatus = async () => {
+            const token = await AsyncStorage.getItem('authToken');
+            setTimeout(() => {
+                if (token) {
+                    navigation.replace('Home');
+                } else {
+                    navigation.replace('Login');
+                }
+            }, 2000);
+        };
 
-        return () => clearTimeout(timer);
+        checkLoginStatus();
     }, [navigation]);
 
     return (
         <View style={styles.container}>
             <StatusBar barStyle="light-content"/>
-
             <Animated.Image
-                source={require('../../assets/splash-icon.png')} // Update with your own logo
+                source={require('../../assets/splash-icon.png')}
                 style={[styles.logo, {opacity: fadeAnim}]}
                 resizeMode="contain"
             />
@@ -47,26 +55,21 @@ const SplashScreen: React.FC = () => {
     );
 };
 
-export default SplashScreen;
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000',
+        backgroundColor: Colors.background,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 30,
+        paddingHorizontal: Spacing.xl,
     },
     logo: {
         width: 140,
         height: 140,
-        marginBottom: 25,
+        marginBottom: Spacing.lg,
     },
     title: {
-        fontSize: 28,
-        color: '#F1F5F9',
-        fontWeight: '600',
-        fontFamily: 'System',
-        letterSpacing: 1.2,
+        ...Typography.title,
+        marginTop: Spacing.md,
     },
 });
