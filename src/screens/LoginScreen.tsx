@@ -1,13 +1,13 @@
 import React, {useState} from 'react';
 import {
-    View,
-    Text,
-    StyleSheet,
-    TextInput,
-    TouchableOpacity,
     Alert,
     Keyboard,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
     TouchableWithoutFeedback,
+    View,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -16,6 +16,9 @@ import {RootStackParamList} from '../AppNavigator';
 import {Colors, Spacing, Typography} from "../styles";
 import {ButtonStyles, InputStyles} from "../styles/components";
 
+// Local
+import usersData from '../data/users.json';
+
 type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
 type LoginErrors = {
@@ -23,13 +26,31 @@ type LoginErrors = {
     password?: string;
 };
 
+type User = {
+    _id: string;
+    name: string;
+    enrollment_number: string;
+    email: string;
+    batch_id?: string;
+    role: "student" | "teacher" | "admin" | string;
+    device_id: string | null;
+    is_device_locked: boolean;
+    created_at: string;
+    last_login: string | null;
+    password: string;
+    status: string;
+}
+
+// Simulated device ID (replace this with any static ID or mock data)
+const simulatedDeviceId = 'mock-device-id-123';
+
 export default function LoginScreen(): React.JSX.Element {
     const navigation = useNavigation<LoginScreenNavigationProp>();
     const [enrollment, setEnrollment] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState<LoginErrors>({});
 
-    async function handleLogin(){
+    async function handleLogin() {
         const newErrors: LoginErrors = {};
 
         if (!enrollment) newErrors.enrollment = 'Enrollment is required.';
@@ -38,22 +59,72 @@ export default function LoginScreen(): React.JSX.Element {
         setErrors(newErrors);
         if (Object.keys(newErrors).length > 0) return;
 
-        if (enrollment !== '123456') {
-            setErrors({ enrollment: 'Invalid enrollment number.' });
+        // Fetch users from the JSON file
+        const users: User[] = usersData;
+
+        // Search for the user based on enrollment number
+        const user = users.find(user => user.enrollment_number === enrollment);
+
+        if (!user) {
+            setErrors({enrollment: 'Invalid enrollment number.'});
             return;
         }
 
-        if (password !== 'password123') {
-            setErrors({ password: 'Incorrect password.' });
+        if (user.password !== password) {
+            setErrors({password: 'Incorrect password.'});
             return;
         }
 
+        // Simulating the device lock and linking process
+        if (user.is_device_locked) {
+            if (!user.device_id) {
+                // Simulate fetching a device ID (this would be real in production)
+                const deviceId = simulatedDeviceId;
+
+                // Set the device ID for the user (this is just for simulation)
+                user.device_id = deviceId;
+
+                // Simulate saving the updated user data (in actual case, this would be a server call)
+                // Here we are just mocking that the user data is updated locally.
+
+                Alert.alert(
+                    "Device Lock",
+                    "Your device has been linked successfully. Proceeding with the login.",
+                    [{
+                        text: "OK", onPress: () => {
+                        }
+                    }]
+                );
+            } else if (user.device_id !== simulatedDeviceId) {
+                // If the device ID doesn't match the simulated one
+                Alert.alert(
+                    "Device Mismatch",
+                    "The device ID doesn't match the one linked with your account.",
+                    [{
+                        text: "OK", onPress: () => {
+                        }
+                    }]
+                );
+                return;
+            }
+        }
+
+        // Simulating JWT token handling
         const fakeToken = 'jwt-token-abc123';
         await AsyncStorage.setItem('authToken', fakeToken);
-        navigation.replace('Home');
+
+        // Navigate to the appropriate screen based on a role
+        if (user.role === 'student') {
+            navigation.replace('Home');
+            // } else if (user.role === 'teacher') {
+            //     navigation.replace('TeacherDashboard');
+            // } else if (user.role === 'admin') {
+            //     navigation.replace('AdminDashboard');
+        }
     }
 
-    function handleForgotPassword(){
+    // Function to handle password reset
+    async function handleForgotPassword() {
         const newErrors: LoginErrors = {};
 
         if (!enrollment) newErrors.enrollment = 'Enrollment is required.';
@@ -61,8 +132,12 @@ export default function LoginScreen(): React.JSX.Element {
         setErrors(newErrors);
         if (Object.keys(newErrors).length > 0) return;
 
-        if (enrollment !== '123456') {
-            setErrors({ enrollment: 'Invalid enrollment number.' });
+        const users = usersData;
+
+        const user = users.find(user => user.enrollment_number === enrollment);
+
+        if (!user) {
+            setErrors({enrollment: 'Invalid enrollment number.'});
             return;
         }
 
@@ -90,7 +165,7 @@ export default function LoginScreen(): React.JSX.Element {
                     value={enrollment}
                     onChangeText={(text) => {
                         setEnrollment(text);
-                        if (errors.enrollment) setErrors(prev => ({ ...prev, enrollment: '' }));
+                        if (errors.enrollment) setErrors(prev => ({...prev, enrollment: ''}));
                     }}
                     keyboardType="number-pad"
                 />
@@ -105,7 +180,7 @@ export default function LoginScreen(): React.JSX.Element {
                     value={password}
                     onChangeText={(text) => {
                         setPassword(text);
-                        if (errors.password) setErrors(prev => ({ ...prev, password: '' }));
+                        if (errors.password) setErrors(prev => ({...prev, password: ''}));
                     }}
                     secureTextEntry
                 />
