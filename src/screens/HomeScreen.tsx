@@ -8,7 +8,7 @@ import {
     Dimensions,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {Colors, Spacing, Typography} from '../styles';
+import {Colors, FontWeight, Spacing, Typography} from '../styles';
 import {CardStyles} from '../styles/components';
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {RootStackParamList} from "../AppNavigator";
@@ -20,9 +20,16 @@ const cardWidth = (screenWidth - cardSpacing * 3) / 2; // 2 columns + spacing
 export default function HomeScreen() {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
+    const handleLogout = () => {
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'Login' }],
+        });
+    };
+
     return (
-        <View  style={styles.container}>
-            <ScrollView>
+        <View style={styles.container}>
+            <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
                 {/* Timetable section */}
                 <Text style={Typography.subtitle}>Today's Timetable</Text>
                 <View style={styles.timetableScrollContainer}>
@@ -58,8 +65,12 @@ export default function HomeScreen() {
                         <Text style={CardStyles.header}>Settings</Text>
                     </TouchableOpacity>
                 </View>
-            </ScrollView>
 
+                {/* Logout Button */}
+                <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                    <Text style={styles.logoutText}>Logout</Text>
+                </TouchableOpacity>
+            </ScrollView>
         </View>
     );
 }
@@ -100,5 +111,18 @@ const styles = StyleSheet.create({
         marginBottom: Spacing.md,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    logoutButton: {
+        marginTop: Spacing.xxl,
+        alignSelf: 'center',
+        paddingVertical: Spacing.sm,
+        paddingHorizontal: Spacing.xl,
+        backgroundColor: Colors.primary,
+        borderRadius: Spacing.sm,
+    },
+    logoutText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: FontWeight.Bold,
     },
 });
