@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
         borderRadius: Spacing.sm,
     },
     logoutText: {
-        color: 'white',
+        color: Colors.textPrimary,
         fontSize: 16,
         fontWeight: FontWeight.Bold,
     },
